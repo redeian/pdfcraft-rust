@@ -59,11 +59,24 @@ pub fn validate_document_input(bytes: &[u8]) -> Result<(), String> {
         return Err("Adobe-authored font assets are excluded by the project's asset policy".into());
     }
     let license: String = f.localized_strings(StringId::LICENSE_DESCRIPTION).map(|s| s.to_string()).collect();
-    if !["SIL OPEN FONT", "SIL Open Font", "Apache License", "Ubuntu Font Licence", "Bitstream Vera", "MIT License"]
-        .iter()
-        .any(|l| license.contains(l))
+    // The GNU GPL is accepted here for one reason: a document input never redistributes the
+    // program, and the GPL 2.0 with the Font Exception that Thai government-style documents are
+    // written in (TH Sarabun New, SIPA) explicitly allows embedding the font, or unaltered
+    // portions of it, into a document. Bundled assets stay on the narrower policy in AGENTS.md §1.
+    if ![
+        "SIL OPEN FONT",
+        "SIL Open Font",
+        "Apache License",
+        "Ubuntu Font Licence",
+        "Bitstream Vera",
+        "MIT License",
+        "GNU General Public License",
+        "GNU GPL",
+    ]
+    .iter()
+    .any(|l| license.contains(l))
     {
-        return Err("select an openly licensed font whose name table declares its licence (OFL, Apache, Ubuntu, Bitstream Vera or MIT)".into());
+        return Err("select an openly licensed font whose name table declares its licence (OFL, Apache, Ubuntu, Bitstream Vera, MIT or GPL with the font exception)".into());
     }
     Ok(())
 }
